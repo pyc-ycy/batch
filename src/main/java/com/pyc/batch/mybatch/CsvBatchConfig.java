@@ -9,11 +9,13 @@ package com.pyc.batch.mybatch;
 
 import com.pyc.batch.domain.Person;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.validator.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -37,4 +39,23 @@ public class CsvBatchConfig {
             }});
         return reader;
     }
+
+    @Bean
+    public Validator<Person> csvBeanValidator(){
+        return new CsvBeanValidator<Person>();
+    }
+
+    @Bean
+    public CsvJobListener csvJobListener(){
+        return new CsvJobListener();
+    }
+
+    @Bean
+    public ItemProcessor<Person,Person> processor(){
+        CsvItemProcessor processor = new CsvItemProcessor();
+        processor.setValidator(csvBeanValidator());
+        return processor;
+    }
+
+
 }
